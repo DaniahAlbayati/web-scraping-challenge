@@ -14,7 +14,7 @@ mongo = PyMongo(app, uri="mongodb://localhost:27017/dic_app")
 def index():
 
     # Find one record of data from the mongo database
-    dic = mongo.db.dic.find_one()
+    dic = mongo.db.collection.find_one()
 
     # Return template and data
     return render_template("index.html", dic=dic)
@@ -23,18 +23,19 @@ def index():
 # Route that will trigger the scrape function
 @app.route("/scrape")
 def scrape():
+    
+    #create Mongo data base
+    dic_db=mongo.db.dic
 
     # Run the scrape function
-    dic=mongo.db.dic
-    dic_data = scrape_mars.scrape()
-
+    dic_data = scrape_mars.scrape_all() 
+    
+    print(dic_data)
+   
     # Update the Mongo database using update and upsert=True
-    dic.update(
-        {},
-        dic_data,
-        upsert=True
-    )
-
+    dic=mongo.db.collection.update({}, dic_data, upsert=True)
+    
+       
     # Redirect back to home page
     return redirect("/", code=302)
 
